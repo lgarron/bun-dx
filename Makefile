@@ -15,6 +15,7 @@ lint: setup
 .PHONY: format
 format: setup
 	${BUN_DX_PREFIX} --package @biomejs/biome biome -- check --write
+	${BUN_DX_PREFIX} --package @cubing/dev-config package.json -- format
 
 .PHONY: check-package.json
 check-package.json: setup

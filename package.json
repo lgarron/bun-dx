@@ -9,6 +9,9 @@
     "url": "git+https://github.com/lgarron/bun-dx.git"
   },
   "type": "module",
+  "bin": {
+    "bun-dx": "bin/bun-dx.ts"
+  },
   "devDependencies": {
     "@types/bun": "^1.3.5",
     "@cubing/dev-config": "^0.8.1",
