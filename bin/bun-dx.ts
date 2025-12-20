@@ -1,16 +1,16 @@
 #!/usr/bin/env -S bun run --
 
 import assert from "node:assert";
-import { stat } from "node:fs/promises";
+import { constants, readFile, stat } from "node:fs/promises";
 import { join } from "node:path";
 import { argv, exit } from "node:process";
 import { $ } from "bun";
 
-const [_, __, dashDashPackage, packageName, bin, dashDash, ...args] = argv;
+const [_, __, dashDashPackage, packageName, binName, dashDash, ...args] = argv;
 if (
   dashDashPackage !== "--package" ||
   !packageName ||
-  !bin ||
+  !binName ||
   dashDash !== "--"
 ) {
   console.error("Usage: bun x -- bun-dx PACKAGE_NAME BIN -- [...ARGS]");
@@ -32,7 +32,7 @@ const npmRoot = await (async () => {
 })();
 
 // TODO: try to actually find the binary?
-async function checkForPackageFolder(packageName: string) {
+async function checkForPackageFolder(packageName: string, binName: string) {
   const packagePath = join(npmRoot, packageName);
   try {
     if (!(await stat(packagePath)).isDirectory()) {
@@ -40,6 +40,54 @@ async function checkForPackageFolder(packageName: string) {
         `Could not find a package folder for \`${packageName}\` at: ${packagePath}/`,
       );
       exit(3);
+    }
+    // I miss `path-class` already, but we're trying to avoid any deps for this package itself. 😭
+    const packageJSONPath = join(packagePath, "package.json");
+    const { bin }: { bin?: string | Record<string, string> } = JSON.parse(
+      await readFile(packageJSONPath, "utf-8"),
+    );
+    if (!bin) {
+      console.error(`\`.bin\` field is not present at: ${packageJSONPath}`);
+      exit(5);
+    }
+    const binRelPath = (() => {
+      if (typeof bin === "string") {
+        return bin;
+      }
+      // `typeof bin === "object"` is a more general check than it looks like, but it's okay for our purposes.
+      else if (typeof bin === "object" && binName in bin) {
+        const binPath = bin[binName];
+        if (!binPath) {
+          // TODO: `binName` and `packageJSONPath` may *both* contain unescaped chars.
+          console.error(
+            `\`.bin\` field does not contain the expected bin name \`${binName}\` at: ${packageJSONPath}`,
+          );
+          exit(6);
+        }
+        return binPath;
+      } else {
+        console.error(
+          `\`.bin\` field does not have the expected format at: ${packageJSONPath}`,
+        );
+        exit(7);
+      }
+    })();
+    const binPath = join(packagePath, binRelPath);
+    try {
+      const stats = await stat(binPath);
+      if (!stats.isFile()) {
+        console.error(`Binary path is not a file: ${binPath}`);
+        exit(8);
+      }
+      if (!(stats.mode & constants.X_OK)) {
+        console.error(`Binary path not an executable: ${binPath}`);
+        exit(10);
+      }
+    } catch (e) {
+      if ((e as { code: string }).code === "ENOENT") {
+        console.error(`Could not find a anything at binary path: ${binPath}`);
+        exit(11);
+      }
     }
   } catch (e) {
     if ((e as { code: string }).code === "ENOENT") {
@@ -52,13 +100,13 @@ async function checkForPackageFolder(packageName: string) {
 }
 
 await Promise.all([
-  checkForPackageFolder("bun-dx"),
-  checkForPackageFolder(packageName),
+  checkForPackageFolder("bun-dx", "bun-dx"),
+  checkForPackageFolder(packageName, binName),
 ]);
 
 // TODO: check that this runs the package path we found?
 try {
-  await $`bun x --package ${packageName} -- ${bin} ${args}`;
+  await $`bun x --package ${packageName} -- ${binName} ${args}`;
 } catch {
   exit(5);
 }
