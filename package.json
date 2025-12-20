@@ -1,6 +1,6 @@
 {
   "name": "bun-dx",
-  "version": "0.1.1",
+  "version": "0.1.2-dev",
   "description": "Run dependencies confidently.",
   "author": "Lucas Garron <code@garron.net>",
   "license": "MIT",
