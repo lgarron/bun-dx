@@ -31,26 +31,30 @@ const npmRoot = await (async () => {
   }
 })();
 
-async function findBinary(packageName: string) {
+// TODO: try to actually find the binary?
+async function checkForPackageFolder(packageName: string) {
   const packagePath = join(npmRoot, packageName);
   try {
     if (!(await stat(packagePath)).isDirectory()) {
       console.error(
-        `Could not find a binary for \`${packageName}\` at: ${packagePath}`,
+        `Could not find a package folder for \`${packageName}\` at: ${packagePath}/`,
       );
       exit(3);
     }
   } catch (e) {
     if ((e as { code: string }).code === "ENOENT") {
       console.error(
-        `Could not find a binary for \`${packageName}\` at: ${packagePath}`,
+        `Could not find a package folder for \`${packageName}\` at: ${packagePath}/`,
       );
       exit(4);
     }
   }
 }
 
-await Promise.all([findBinary("bun-dx"), findBinary(packageName)]);
+await Promise.all([
+  checkForPackageFolder("bun-dx"),
+  checkForPackageFolder(packageName),
+]);
 
 // TODO: check that this runs the package path we found?
 try {
