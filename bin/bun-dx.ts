@@ -32,7 +32,10 @@ const npmRoot = await (async () => {
 })();
 
 // TODO: try to actually find the binary?
-async function checkForPackageFolder(packageName: string, binName: string) {
+async function checkForPackageFolder(
+  packageName: string,
+  binName: string,
+): Promise<{ binPath: string }> {
   const packagePath = join(npmRoot, packageName);
   try {
     if (!(await stat(packagePath)).isDirectory()) {
@@ -83,6 +86,7 @@ async function checkForPackageFolder(packageName: string, binName: string) {
         console.error(`Binary path not an executable: ${binPath}`);
         exit(10);
       }
+      return { binPath };
     } catch (e) {
       if ((e as { code: string }).code === "ENOENT") {
         console.error(`Could not find a anything at binary path: ${binPath}`);
@@ -99,14 +103,14 @@ async function checkForPackageFolder(packageName: string, binName: string) {
   }
 }
 
-await Promise.all([
+const [___, { binPath }] = await Promise.all([
   checkForPackageFolder("bun-dx", "bun-dx"),
   checkForPackageFolder(packageName, binName),
 ]);
 
 // TODO: check that this runs the package path we found?
 try {
-  await $`bun x --package ${packageName} -- ${binName} ${args}`;
+  await $`bun run -- ${binPath} ${args}`;
 } catch {
   exit(5);
 }
