@@ -1,0 +1,25 @@
+{
+  "name": "bun-dx",
+  "version": "0.1.0",
+  "description": "Run dependencies confidently.",
+  "author": "Lucas Garron <code@garron.net>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/lgarron/bun-dx.git"
+  },
+  "type": "module",
+  "devDependencies": {
+    "@types/bun": "^1.3.5",
+    "@cubing/dev-config": "^0.8.1",
+    "@biomejs/biome": "^2.3.10",
+    "typescript": "^5.9.3",
+    "bun-dx": "."
+  },
+  "files": [
+    "./bin/"
+  ],
+  "scripts": {
+    "prepublishOnly": "make prepublishOnly"
+  }
+}
