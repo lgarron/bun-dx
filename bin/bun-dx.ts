@@ -37,70 +37,83 @@ async function checkForPackageFolder(
   binName: string,
 ): Promise<{ binPath: string }> {
   const packagePath = join(npmRoot, packageName);
-  try {
-    if (!(await stat(packagePath)).isDirectory()) {
-      console.error(
-        `Could not find a package folder for \`${packageName}\` at: ${packagePath}/`,
-      );
-      exit(3);
-    }
-    // I miss `path-class` already, but we're trying to avoid any deps for this package itself. 😭
-    const packageJSONPath = join(packagePath, "package.json");
-    const { bin }: { bin?: string | Record<string, string> } = JSON.parse(
-      await readFile(packageJSONPath, "utf-8"),
-    );
-    if (!bin) {
-      console.error(`\`.bin\` field is not present at: ${packageJSONPath}`);
-      exit(5);
-    }
-    const binRelPath = (() => {
-      if (typeof bin === "string") {
-        return bin;
-      }
-      // `typeof bin === "object"` is a more general check than it looks like, but it's okay for our purposes.
-      else if (typeof bin === "object" && binName in bin) {
-        const binPath = bin[binName];
-        if (!binPath) {
-          // TODO: `binName` and `packageJSONPath` may *both* contain unescaped chars.
-          console.error(
-            `\`.bin\` field does not contain the expected bin name \`${binName}\` at: ${packageJSONPath}`,
-          );
-          exit(6);
-        }
-        return binPath;
-      } else {
-        console.error(
-          `\`.bin\` field does not have the expected format at: ${packageJSONPath}`,
-        );
-        exit(7);
-      }
-    })();
-    const binPath = join(packagePath, binRelPath);
+  const packagePathStats = await (async () => {
     try {
-      const stats = await stat(binPath);
-      if (!stats.isFile()) {
-        console.error(`Binary path is not a file: ${binPath}`);
-        exit(8);
+      // Note: `return await` is necessary to catch th error.
+      return await stat(packagePath);
+    } catch (e) {
+      if ((e as { code: string }).code === "ENOENT") {
+        console.error(
+          `Could not find a package folder for \`${packageName}\` at: ${packagePath}/`,
+        );
+        exit(4);
       }
-      if (!(stats.mode & constants.X_OK)) {
-        console.error(`Binary path not an executable: ${binPath}`);
-        exit(10);
+      console.error(
+        `Could not stat package folder for \`${packageName}\` at: ${packagePath}/`,
+      );
+      exit(12);
+    }
+  })();
+  if (!packagePathStats.isDirectory()) {
+    console.error(
+      `Could not find a package folder for \`${packageName}\` at: ${packagePath}/`,
+    );
+    exit(3);
+  }
+  // I miss `path-class` already, but we're trying to avoid any deps for this package itself. 😭
+  const packageJSONPath = join(packagePath, "package.json");
+  const { bin }: { bin?: string | Record<string, string> } = JSON.parse(
+    await readFile(packageJSONPath, "utf-8"),
+  );
+  if (!bin) {
+    console.error(`\`.bin\` field is not present at: ${packageJSONPath}`);
+    exit(5);
+  }
+  const binRelPath = (() => {
+    if (typeof bin === "string") {
+      return bin;
+    }
+    // `typeof bin === "object"` is a more general check than it looks like, but it's okay for our purposes.
+    else if (typeof bin === "object" && binName in bin) {
+      const binPath = bin[binName];
+      if (!binPath) {
+        // TODO: `binName` and `packageJSONPath` may *both* contain unescaped chars.
+        console.error(
+          `\`.bin\` field does not contain the expected bin name \`${binName}\` at: ${packageJSONPath}`,
+        );
+        exit(6);
       }
-      return { binPath };
+      return binPath;
+    } else {
+      console.error(
+        `\`.bin\` field does not have the expected format at: ${packageJSONPath}`,
+      );
+      exit(7);
+    }
+  })();
+  const binPath = join(packagePath, binRelPath);
+  const binStats = await (async () => {
+    try {
+      return await stat(binPath);
     } catch (e) {
       if ((e as { code: string }).code === "ENOENT") {
         console.error(`Could not find a anything at binary path: ${binPath}`);
         exit(11);
       }
+      console.error(`Could not stat binary path: ${binPath}`);
+      exit(13);
+      return undefined as never;
     }
-  } catch (e) {
-    if ((e as { code: string }).code === "ENOENT") {
-      console.error(
-        `Could not find a package folder for \`${packageName}\` at: ${packagePath}/`,
-      );
-      exit(4);
-    }
+  })();
+  if (!binStats.isFile()) {
+    console.error(`Binary path is not a file: ${binPath}`);
+    exit(8);
   }
+  if (!(packagePathStats.mode & constants.X_OK)) {
+    console.error(`Binary path not an executable: ${binPath}`);
+    exit(10);
+  }
+  return { binPath };
 }
 
 const [___, { binPath }] = await Promise.all([
