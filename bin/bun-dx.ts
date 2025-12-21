@@ -13,7 +13,9 @@ if (
   !binName ||
   dashDash !== "--"
 ) {
-  console.error("Usage: bun x -- bun-dx PACKAGE_NAME BIN -- [...ARGS]");
+  console.error(
+    "Usage: bun x -- bun-dx --package PACKAGE_NAME BIN_NAME -- [...ARGS]",
+  );
   exit(1);
 }
 
