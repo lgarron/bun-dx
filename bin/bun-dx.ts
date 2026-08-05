@@ -41,7 +41,7 @@ async function checkForPackageFolder(
   const packagePath = join(npmRoot, packageName);
   const packagePathStats = await (async () => {
     try {
-      // Note: `return await` is necessary to catch th error.
+      // Note: `return await` is necessary to catch the error.
       return await stat(packagePath);
     } catch (e) {
       if ((e as { code: string }).code === "ENOENT") {
