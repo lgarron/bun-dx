@@ -33,7 +33,6 @@ const npmRoot = await (async () => {
   }
 })();
 
-// TODO: try to actually find the binary?
 async function checkForPackageFolder(
   packageName: string,
   binName: string,
