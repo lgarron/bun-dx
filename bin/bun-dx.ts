@@ -126,5 +126,5 @@ const [___, { binPath }] = await Promise.all([
 try {
   await $`bun run -- ${binPath} ${args}`;
 } catch {
-  exit(5);
+  exit(9);
 }
