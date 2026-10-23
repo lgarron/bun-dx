@@ -3,6 +3,9 @@
   "configVersion": 1,
   "workspaces": {
     "": {
+      "dependencies": {
+        "printable-shell-command": "^5.3.2",
+      },
       "devDependencies": {
         "@biomejs/biome": "2.3.9",
         "@cubing/dev-config": "^0.8.1",
@@ -97,12 +100,20 @@
 
     "path-class": ["path-class@0.10.13", "", { "dependencies": { "xdg-basedir": "^5.1.0" }, "peerDependencies": { "@types/node": ">=24.7.1" } }, "sha512-Bb9kc9iKOSPLUJJ/52ITaBRzCpOye3mDMzHims1AwKF6P27dPjAARfadYCeGpVVzD/NR8M1assZQWAHU4HqY9w=="],
 
-    "printable-shell-command": ["printable-shell-command@4.0.3", "", { "dependencies": { "@types/node": ">=25.0.3", "path-class": ">=0.10.3" } }, "sha512-AnoCKmRdGH5+qghSOk5PwSfGrdFme/gF9S2WOyex/ABBVEaXLRdth7P34FBtTCkFDiuifq6CqHgf+IDepH6iDw=="],
+    "printable-shell-command": ["printable-shell-command@5.3.2", "", { "dependencies": { "path-class": ">=0.15.1" } }, "sha512-gtIdKXTpCCq6B642I5ILcXBuUwRnEcQIniO5EzLZP/XVb9OkE3MajVuD5em1Y8QmW7enZzo3mD386MKEfZSJWg=="],
 
     "typescript": ["typescript@5.9.3", "", { "bin": { "tsc": "bin/tsc", "tsserver": "bin/tsserver" } }, "sha512-jl1vZzPDinLr9eUt3J/t7V6FgNEw9QjvBPdysz9KfQDD41fQrC2Y4vKQdiaUpFT4bXlb1RHhLpp8wtm6M5TgSw=="],
 
     "undici-types": ["undici-types@7.16.0", "", {}, "sha512-Zz+aZWSj8LE6zoxD+xrjh4VfkIG8Ya6LvYkZqtUQGJPZjYl53ypCaUwWqo7eI0x66KBGeRo+mlBEkMSeSZ38Nw=="],
 
     "xdg-basedir": ["xdg-basedir@5.1.0", "", {}, "sha512-GCPAHLvrIH13+c0SuacwvRYj2SxJXQ4kaVTT5xgL3kPrz56XxkF21IGhjSE1+W0aw7gpBWRGXLCPnPby6lSpmQ=="],
+
+    "@cubing/dev-config/printable-shell-command": ["printable-shell-command@4.0.3", "", { "dependencies": { "@types/node": ">=25.0.3", "path-class": ">=0.10.3" } }, "sha512-AnoCKmRdGH5+qghSOk5PwSfGrdFme/gF9S2WOyex/ABBVEaXLRdth7P34FBtTCkFDiuifq6CqHgf+IDepH6iDw=="],
+
+    "printable-shell-command/path-class": ["path-class@0.17.5", "", { "dependencies": { "@types/node": ">=26.6.3" } }, "sha512-zTw4YXne3/N878b+i2Jh44GGf0C/FxkqK/s0EpedFHcV0qxOvNni6t8MzkjKZMQSzihCaSwixUaNDer+NQblFQ=="],
+
+    "printable-shell-command/path-class/@types/node": ["@types/node@26.6.5", "", { "dependencies": { "undici-types": "~8.9.0" } }, "sha512-uMzsv9stDdofIZBx4UGh4Z9ZgXnGC9seRDscilBcTHAeOFk67MZg/k9bWVfO+bk4qZmG+l52hRnLwUiH2LnJTg=="],
+
+    "printable-shell-command/path-class/@types/node/undici-types": ["undici-types@8.9.0", "", {}, "sha512-KTDyRTYX8sWmKXAikPHHSyc63CRPETMctyjKFupcC6OBLXT3xsN0e9aF7m+mIXutFWpUXuedtowG7iLOzp0kQg=="],
   }
 }

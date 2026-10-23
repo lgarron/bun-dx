@@ -12,6 +12,9 @@
   "bin": {
     "bun-dx": "bin/bun-dx.ts"
   },
+  "dependencies": {
+    "printable-shell-command": "^5.3.2"
+  },
   "devDependencies": {
     "@biomejs/biome": "2.3.9",
     "@cubing/dev-config": "^0.8.1",

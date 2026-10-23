@@ -5,6 +5,7 @@ import { constants, readFile, stat } from "node:fs/promises";
 import { join } from "node:path";
 import { argv, exit } from "node:process";
 import { $ } from "bun";
+import { PrintableShellCommand } from "printable-shell-command";
 
 const [_, __, dashDashPackage, packageName, binName, dashDash, ...args] = argv;
 if (
@@ -124,7 +125,13 @@ const [___, { binPath }] = await Promise.all([
 
 // TODO: check that this runs the package path we found?
 try {
-  await $`bun run -- ${binPath} ${args}`;
+  await new PrintableShellCommand("bun", [
+    "run",
+    "--",
+    binPath,
+    args,
+  ]).spawnPassthrough().success;
+  // await $`bun run -- ${binPath} ${args}`;
 } catch {
   exit(9);
 }
