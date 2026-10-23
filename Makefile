@@ -33,4 +33,5 @@ reset: clean
 
 .PHONY: publish
 publish:
+	npm whoami && npm login
 	npm publish
